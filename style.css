@@ -1,0 +1,54 @@
+ */
+body { 
+    margin: 0; 
+    overflow: hidden; 
+    background-color: #000; 
+    color: #fff; 
+    font-family: 'VT323', monospace; 
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+}
+
+#textDisplay {
+    font-family: 'VT323', monospace;
+    font-size: 15vw;
+    color: white;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+    z-index: 10;
+    width: 75%;
+    height: 75%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.fall-backwards {
+    animation: fallBackwards 1s ease-in-out 1s forwards;
+}
+
+@keyframes fallBackwards {
+    0% {
+        transform: translate(-50%, -50%) rotateX(0deg);
+    }
+    50% {
+        transform: translate(-50%, -50%) rotateX(45deg) translateY(-20px);
+    }
+    100% {
+        transform: translate(-50%, -50%) rotateX(90deg) translateY(50px);
+        opacity: 0.7;
+    }
+}
+
+canvas { 
+    display: block; 
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 1;
+}
