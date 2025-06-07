@@ -5,34 +5,37 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Three.js Text Pool</title>
     <style>
-        body { margin: 0; overflow: hidden; background-color: #111; color: #fff; font-family: 'Inter', sans-serif; }
-        canvas { display: block; }
-        #info {
+        body { 
+            margin: 0; 
+            overflow: hidden; 
+            background-color: #000; 
+            color: #fff; 
+            font-family: 'Inter', sans-serif; 
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+        
+        #textDisplay {
             position: absolute;
-            top: 10px;
-            width: 100%;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 5em;
+            color: white;
             text-align: center;
             z-index: 100;
-            display:block;
-            padding: 10px;
-            background-color: rgba(0,0,0,0.2);
+            font-weight: normal;
+            white-space: nowrap;
         }
-        button {
-            padding: 12px 24px;
-            font-size: 16px;
-            cursor: pointer;
-            background-color: #444;
-            color: #fff;
-            border: 1px solid #666;
-            border-radius: 8px;
-            margin-top: 10px;
-            transition: background-color 0.3s, transform 0.1s;
-        }
-        button:hover {
-            background-color: #555;
-        }
-        button:active {
-            transform: scale(0.95);
+        
+        canvas { 
+            display: block; 
+            position: absolute;
+            top: 0;
+            left: 0;
+            z-index: 1;
         }
     </style>
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -41,18 +44,14 @@
 </head>
 <body>
 
-    <div id="info">
-        <h1>Text Pool Demonstration</h1>
-        <p>Click the button to display a random word from the pool.</p>
-        <button id="changeTextBtn">New Word</button>
-    </div>
+    <div id="textDisplay"></div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 
     <script type="module">
         // Basic Scene Setup
         let scene, camera, renderer;
-        let textMesh;
+        let textDisplayElement;
 
         // --- TEXT POOL DEFINITION ---
         // This is the core array containing both ASCII characters and your commands.
@@ -86,9 +85,9 @@
 
         // --- THREE.JS INITIALIZATION AND LOGIC ---
         function init() {
-            // Scene
+            // Scene (keeping basic three.js setup as backdrop)
             scene = new THREE.Scene();
-            scene.background = new THREE.Color(0x1a1a1a);
+            scene.background = new THREE.Color(0x000000);
 
             // Camera
             camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
@@ -98,68 +97,34 @@
             renderer = new THREE.WebGLRenderer({ antialias: true });
             renderer.setSize(window.innerWidth, window.innerHeight);
             document.body.appendChild(renderer.domElement);
-            
-            // Lighting
-            const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
-            scene.add(ambientLight);
-            const pointLight = new THREE.PointLight(0xffffff, 0.8);
-            pointLight.position.set(5, 10, 15);
-            scene.add(pointLight);
 
-            // Initial text creation
-            createText();
+            // Get text display element
+            textDisplayElement = document.getElementById('textDisplay');
+
+            // Start the text presentation
+            startTextPresentation();
 
             // Event Listeners
-            document.getElementById('changeTextBtn').addEventListener('click', createText);
             window.addEventListener('resize', onWindowResize, false);
 
             // Start animation loop
             animate();
         }
 
-        // --- TEXT CREATION FUNCTION ---
-        function createText() {
-            // If a text mesh already exists, remove it from the scene
-            if (textMesh) {
-                scene.remove(textMesh);
-                textMesh.geometry.dispose();
-                textMesh.material.dispose();
-            }
+        // --- TEXT PRESENTATION FUNCTION ---
+        function startTextPresentation() {
+            displayRandomText();
+        }
 
-            // Get a random word from the pool
-            const randomWord = textPool[Math.floor(Math.random() * textPool.length)];
-
-            // Font loading
-            const fontLoader = new THREE.FontLoader();
-            fontLoader.load('https://threejs.org/examples/fonts/helvetiker_regular.typeface.json', function(font) {
-                const textGeometry = new THREE.TextGeometry(randomWord, {
-                    font: font,
-                    size: 3,
-                    height: 0.5,
-                    curveSegments: 12,
-                    bevelEnabled: true,
-                    bevelThickness: 0.1,
-                    bevelSize: 0.1,
-                    bevelOffset: 0,
-                    bevelSegments: 5
-                });
-
-                // Center the text geometry
-                textGeometry.computeBoundingBox();
-                const textWidth = textGeometry.boundingBox.max.x - textGeometry.boundingBox.min.x;
-                textGeometry.translate(-0.5 * textWidth, 0, 0);
-
-                // Material
-                const textMaterial = new THREE.MeshStandardMaterial({
-                    color: 0x00aaff, // A bright blue color
-                    metalness: 0.8,
-                    roughness: 0.2
-                });
-
-                // Mesh
-                textMesh = new THREE.Mesh(textGeometry, textMaterial);
-                scene.add(textMesh);
-            });
+        function displayRandomText() {
+            // Get a random item from the textPool
+            const randomItem = textPool[Math.floor(Math.random() * textPool.length)];
+            
+            // Display the text
+            textDisplayElement.textContent = randomItem;
+            
+            // Schedule the next text change after 2 seconds
+            setTimeout(displayRandomText, 2000);
         }
 
         // --- UTILITY FUNCTIONS ---
@@ -171,12 +136,6 @@
 
         function animate() {
             requestAnimationFrame(animate);
-
-            // Add a little rotation for visual interest
-            if (textMesh) {
-                textMesh.rotation.y += 0.005;
-            }
-
             renderer.render(scene, camera);
         }
 
